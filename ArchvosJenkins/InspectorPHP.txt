@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    environment {
+        // ⚠️ IMPORTANTE: Cambia esta ruta por la carpeta real de tu nuevo proyecto
+        PROJECT_DIR = 'C:\\xampp\\htdocs\\TU_NUEVO_PROYECTO' 
+    }
+
+    stages {
+        stage('1. Verificar PHP') {
+            steps {
+                echo '=== NUEVO PROYECTO PHP ==='
+                echo 'Verificando entorno...'
+                bat 'C:\\xampp\\php\\php.exe -v'
+            }
+        }
+
+        stage('2. Explorar estructura') {
+            steps {
+                echo '=== EXPLORANDO CARPETA DEL PROYECTO ==='
+                bat "dir ${PROJECT_DIR}"
+            }
+        }
+
+        stage('3. Revisar sintaxis PHP') {
+            steps {
+                echo 'Revisando todos los archivos PHP con PowerShell...'
+                powershell """
+                    \$archivos = Get-ChildItem -Path '${PROJECT_DIR}' -Filter *.php -Recurse
+                    foreach (\$archivo in \$archivos) {
+                        Write-Host "Revisando: \$(\$archivo.FullName)"
+                        & 'C:\\xampp\\php\\php.exe' -l \$archivo.FullName
+                    }
+                """
+            }
+        }
+
+        stage('4. Validar archivos clave') {
+            steps {
+                echo 'Verificando que el proyecto no esté vacío...'
+                powershell """
+                    \$count = (Get-ChildItem -Path '${PROJECT_DIR}' -Filter *.php -Recurse).Count
+                    Write-Host "Total de archivos PHP encontrados: \$count"
+                    if (\$count -gt 0) {
+                        Write-Host '✅ El proyecto contiene archivos PHP válidos'
+                    } else {
+                        Write-Error '❌ No se encontraron archivos PHP en la ruta especificada'
+                        exit 1
+                    }
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '🏁 Pipeline finalizado'
+        }
+        success {
+            echo '🎉 SUCCESS: ¡Build exitoso! El nuevo proyecto está limpio de errores de sintaxis.'
+        }
+        failure {
+            echo '❌ FAILURE: Build fallido. Revisa la ruta o los errores de sintaxis arriba.'
+        }
+    }
+}

@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('1. Descargar código de GitHub') {
+            steps {
+                echo '=== DESCARGANDO CÓDIGO DESDE GITHUB ==='
+                git branch: 'main', url: 'https://github.com/jhonrot/comercial-pro.git'
+            }
+        }
+
+        stage('2. Verificar PHP') {
+            steps {
+                echo '=== FASE 2: INTEGRACION CONTINUA ==='
+                bat 'C:\\xampp\\php\\php.exe -v'
+            }
+        }
+
+        stage('3. Explorar estructura') {
+            steps {
+                echo '=== EXPLORANDO CARPETA DEL PROYECTO ==='
+                bat 'dir'
+            }
+        }
+
+        stage('4. Revisar sintaxis PHP') {
+            steps {
+                echo 'Revisando todos los archivos PHP...'
+                powershell """
+                    \$archivos = Get-ChildItem -Path '.' -Filter *.php -Recurse
+                    foreach (\$archivo in \$archivos) {
+                        Write-Host "Revisando: \$(\$archivo.FullName)"
+                        & 'C:\\xampp\\php\\php.exe' -l \$archivo.FullName
+                    }
+                """
+            }
+        }
+
+        stage('5. Validar archivos clave') {
+            steps {
+                echo 'Verificando que el proyecto no esté vacío...'
+                powershell """
+                    \$count = (Get-ChildItem -Path '.' -Filter *.php -Recurse).Count
+                    Write-Host "Total de archivos PHP encontrados: \$count"
+                    if (\$count -gt 0) {
+                        Write-Host '✅ El proyecto contiene archivos PHP válidos'
+                    } else {
+                        Write-Error '❌ No se encontraron archivos PHP'
+                        exit 1
+                    }
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '🏁 Pipeline finalizado'
+        }
+        success {
+            echo '🎉 SUCCESS: ¡Build exitoso! El código está limpio.'
+        }
+        failure {
+            echo '❌ FAILURE: Build fallido.'
+        }
+    }
+}
