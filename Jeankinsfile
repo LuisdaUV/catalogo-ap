@@ -1,0 +1,45 @@
+
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+    }
+
+    stages {
+        stage('Verificar entorno') {
+            steps {
+                bat 'git --version'
+                bat 'php -v'
+            }
+        }
+
+        stage('Descargar codigo') {
+            steps {
+                echo 'Jenkins ha descargado el repositorio desde GitHub.'
+                bat 'git status --short'
+            }
+        }
+
+        stage('Validar sintaxis PHP') {
+            steps {
+                bat '''
+                @echo off
+                for /r %%f in (*.php) do (
+                    php -l "%%f"
+                    if errorlevel 1 exit /b 1
+                )
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completado correctamente.'
+        }
+        failure {
+            echo 'El Pipeline fallo. Revisar la consola de Jenkins.'
+        }
+    }
+}
