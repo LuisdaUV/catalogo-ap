@@ -1,6 +1,23 @@
 <?php
 session_start();
 require_once 'config/database.php';
+$catalogo_ciudades = require 'config/ciudades.php';
+
+// Devuelve el país de una ciudad del catálogo (ignora mayúsculas y tildes) o null.
+function buscarPaisPorCiudad($ciudad, $catalogo) {
+    $normalizar = function($t) {
+        $t = mb_strtolower(trim($t), 'UTF-8');
+        return strtr($t, ['á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u','ü'=>'u']);
+    };
+    foreach($catalogo as $pais => $ciudades) {
+        foreach($ciudades as $c) {
+            if($normalizar($c) === $normalizar($ciudad)) {
+                return ['ciudad' => $c, 'pais' => $pais];
+            }
+        }
+    }
+    return null;
+}
 
 $mensaje = '';
 $tipo_mensaje = '';
@@ -20,6 +37,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
        empty($correo) || empty($ciudad) || empty($pais) || empty($password)) {
         $mensaje = 'Todos los campos son obligatorios';
         $tipo_mensaje = 'danger';
+    } elseif(($coincidencia = buscarPaisPorCiudad($ciudad, $catalogo_ciudades)) === null) {
+        $mensaje = 'La ciudad no está en el catálogo (Colombia, Italia o Francia)';
+        $tipo_mensaje = 'danger';
     } elseif(!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
         $mensaje = 'Correo electrónico no válido';
         $tipo_mensaje = 'danger';
@@ -30,6 +50,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         $mensaje = 'La contraseña debe tener al menos 6 caracteres';
         $tipo_mensaje = 'danger';
     } else {
+        // El país siempre se toma del catálogo según la ciudad
+        $ciudad = $coincidencia['ciudad'];
+        $pais = $coincidencia['pais'];
         try {
             $database = new Database();
             $db = $database->getConnection();
@@ -122,11 +145,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="ciudad" class="form-label">Ciudad</label>
-                                    <input type="text" class="form-control" id="ciudad" name="ciudad" required>
+                                    <input type="text" class="form-control" id="ciudad" name="ciudad" list="lista-ciudades" autocomplete="off" placeholder="Ej: Roma" required>
+                                    <datalist id="lista-ciudades">
+                                        <?php foreach($catalogo_ciudades as $nombre_pais => $ciudades): ?>
+                                            <?php foreach($ciudades as $c): ?>
+                                                <option value="<?php echo htmlspecialchars($c); ?>" data-pais="<?php echo htmlspecialchars($nombre_pais); ?>"><?php echo htmlspecialchars($nombre_pais); ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endforeach; ?>
+                                    </datalist>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="pais" class="form-label">País</label>
-                                    <input type="text" class="form-control" id="pais" name="pais" required>
+                                    <input type="text" class="form-control" id="pais" name="pais" placeholder="Se completa solo" readonly required>
                                 </div>
                             </div>
                             
@@ -152,5 +182,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Autocompleta el país al elegir o escribir una ciudad del catálogo
+        (function() {
+            const normalizar = t => t.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const inputCiudad = document.getElementById('ciudad');
+            const inputPais = document.getElementById('pais');
+            const mapa = {};
+            document.querySelectorAll('#lista-ciudades option').forEach(o => {
+                mapa[normalizar(o.value)] = o.dataset.pais;
+            });
+            function actualizarPais() {
+                inputPais.value = mapa[normalizar(inputCiudad.value)] || '';
+            }
+            inputCiudad.addEventListener('input', actualizarPais);
+            inputCiudad.addEventListener('change', actualizarPais);
+            actualizarPais();
+        })();
+    </script>
 </body>
 </html>
