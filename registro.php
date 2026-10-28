@@ -21,6 +21,10 @@ function buscarPaisPorCiudad($ciudad, $catalogo) {
 
 $mensaje = '';
 $tipo_mensaje = '';
+$errores = [];
+
+// Inicializar variables para mantener los datos en el formulario
+$numero_documento = $nombre = $apellidos = $correo = $ciudad = $pais = '';
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $numero_documento = trim($_POST['numero_documento']);
@@ -37,22 +41,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
        empty($correo) || empty($ciudad) || empty($pais) || empty($password)) {
         $mensaje = 'Todos los campos son obligatorios';
         $tipo_mensaje = 'danger';
-    } elseif(($coincidencia = buscarPaisPorCiudad($ciudad, $catalogo_ciudades)) === null) {
-        $mensaje = 'La ciudad no está en el catálogo (Colombia, Italia o Francia)';
-        $tipo_mensaje = 'danger';
     } elseif(!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-        $mensaje = 'Correo electrónico no válido';
-        $tipo_mensaje = 'danger';
-    } elseif($password !== $confirm_password) {
-        $mensaje = 'Las contraseñas no coinciden';
-        $tipo_mensaje = 'danger';
+        $errores['correo'] = 'Correo electrónico no válido.';
+    }
+
+    if(empty($ciudad)) $errores['ciudad'] = 'La ciudad es obligatoria.';
+    if(empty($pais)) $errores['pais'] = 'El país es obligatorio.';
+    
+    if(empty($password)) {
+        $errores['password'] = 'La contraseña es obligatoria.';
     } elseif(strlen($password) < 6) {
         $mensaje = 'La contraseña debe tener al menos 6 caracteres';
         $tipo_mensaje = 'danger';
     } else {
-        // El país siempre se toma del catálogo según la ciudad
-        $ciudad = $coincidencia['ciudad'];
-        $pais = $coincidencia['pais'];
         try {
             $database = new Database();
             $db = $database->getConnection();
@@ -65,7 +66,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->execute();
             
             if($stmt->rowCount() > 0) {
-                $mensaje = 'El número de documento o correo ya está registrado';
+                $mensaje = 'El número de documento o correo ya está registrado.';
                 $tipo_mensaje = 'danger';
             } else {
                 // Insertar nuevo usuario
@@ -85,8 +86,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if($stmt->execute()) {
                     $mensaje = 'Registro exitoso. Ahora puedes iniciar sesión.';
                     $tipo_mensaje = 'success';
+                    // Limpiar el formulario tras el éxito
+                    $numero_documento = $nombre = $apellidos = $correo = $ciudad = $pais = '';
                 } else {
-                    $mensaje = 'Error al registrar el usuario';
+                    $mensaje = 'Error al registrar el usuario.';
                     $tipo_mensaje = 'danger';
                 }
             }
@@ -94,6 +97,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mensaje = 'Error: ' . $e->getMessage();
             $tipo_mensaje = 'danger';
         }
+    } else {
+        $mensaje = 'Por favor, corrige los errores en el formulario.';
+        $tipo_mensaje = 'danger';
     }
 }
 ?>
@@ -120,54 +126,88 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         <?php endif; ?>
                         
-                        <form method="POST" action="registro.php">
+                        <!-- Se añade novalidate para que el navegador no bloquee los mensajes personalizados de Bootstrap -->
+                        <form method="POST" action="registro.php" novalidate>
                             <div class="mb-3">
                                 <label for="numero_documento" class="form-label">Número de Documento</label>
-                                <input type="text" class="form-control" id="numero_documento" name="numero_documento" required>
+                                <input type="text" 
+                                       class="form-control <?php echo isset($errores['numero_documento']) ? 'is-invalid' : ''; ?>" 
+                                       id="numero_documento" 
+                                       name="numero_documento" 
+                                       value="<?php echo htmlspecialchars($numero_documento); ?>" required>
+                                <div class="invalid-feedback">
+                                    <?php echo $errores['numero_documento'] ?? ''; ?>
+                                </div>
                             </div>
                             
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="nombre" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                    <input type="text" 
+                                           class="form-control <?php echo isset($errores['nombre']) ? 'is-invalid' : ''; ?>" 
+                                           id="nombre" 
+                                           name="nombre" 
+                                           value="<?php echo htmlspecialchars($nombre); ?>" required>
+                                    <div class="invalid-feedback">
+                                        <?php echo $errores['nombre'] ?? ''; ?>
+                                    </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="apellidos" class="form-label">Apellidos</label>
-                                    <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                                    <input type="text" 
+                                           class="form-control <?php echo isset($errores['apellidos']) ? 'is-invalid' : ''; ?>" 
+                                           id="apellidos" 
+                                           name="apellidos" 
+                                           value="<?php echo htmlspecialchars($apellidos); ?>" required>
+                                    <div class="invalid-feedback">
+                                        <?php echo $errores['apellidos'] ?? ''; ?>
+                                    </div>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="correo" class="form-label">Correo Electrónico</label>
-                                <input type="email" class="form-control" id="correo" name="correo" required>
+                                <input type="email" 
+                                       class="form-control <?php echo isset($errores['correo']) ? 'is-invalid' : ''; ?>" 
+                                       id="correo" 
+                                       name="correo" 
+                                       value="<?php echo htmlspecialchars($correo); ?>" required>
+                                <div class="invalid-feedback">
+                                    <?php echo $errores['correo'] ?? ''; ?>
+                                </div>
                             </div>
                             
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="ciudad" class="form-label">Ciudad</label>
-                                    <input type="text" class="form-control" id="ciudad" name="ciudad" list="lista-ciudades" autocomplete="off" placeholder="Ej: Roma" required>
-                                    <datalist id="lista-ciudades">
-                                        <?php foreach($catalogo_ciudades as $nombre_pais => $ciudades): ?>
-                                            <?php foreach($ciudades as $c): ?>
-                                                <option value="<?php echo htmlspecialchars($c); ?>" data-pais="<?php echo htmlspecialchars($nombre_pais); ?>"><?php echo htmlspecialchars($nombre_pais); ?></option>
-                                            <?php endforeach; ?>
-                                        <?php endforeach; ?>
-                                    </datalist>
+                                    <input type="text" class="form-control" id="ciudad" name="ciudad" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="pais" class="form-label">País</label>
-                                    <input type="text" class="form-control" id="pais" name="pais" placeholder="Se completa solo" readonly required>
+                                    <input type="text" class="form-control" id="pais" name="pais" required>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="password" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
+                                <input type="password" 
+                                       class="form-control <?php echo isset($errores['password']) ? 'is-invalid' : ''; ?>" 
+                                       id="password" 
+                                       name="password" required>
+                                <div class="invalid-feedback">
+                                    <?php echo $errores['password'] ?? ''; ?>
+                                </div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                <input type="password" 
+                                       class="form-control <?php echo isset($errores['confirm_password']) ? 'is-invalid' : ''; ?>" 
+                                       id="confirm_password" 
+                                       name="confirm_password" required>
+                                <div class="invalid-feedback">
+                                    <?php echo $errores['confirm_password'] ?? ''; ?>
+                                </div>
                             </div>
                             
                             <button type="submit" class="btn btn-primary w-100">Registrarse</button>
