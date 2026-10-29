@@ -1,24 +1,3 @@
-<?php
-session_start();
-require_once 'config/database.php';
-
-if(!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
-
-try {
-    $database = new Database();
-    $db = $database->getConnection();
-    
-    $query = "SELECT * FROM productos WHERE activo = TRUE AND fecha_fin >= CURDATE() ORDER BY fecha_inicio DESC";
-    $stmt = $db->prepare($query);
-    $stmt->execute();
-    $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch(Exception $e) {
-    $productos = [];
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -31,7 +10,8 @@ try {
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="catalogo.php">Catálogo de Productos</a>
+            <!-- Ruta actualizada -->
+            <a class="navbar-brand" href="index.php?controller=catalogo">Catálogo de Productos</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -41,7 +21,8 @@ try {
                         <span class="nav-link text-light">Hola, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Cerrar Sesión</a>
+                        <!-- Ruta actualizada -->
+                        <a class="nav-link" href="index.php?controller=logout">Cerrar Sesión</a>
                     </li>
                 </ul>
             </div>
@@ -82,7 +63,7 @@ try {
                                 </small>
                             </div>
                             <div class="card-footer bg-white border-0">
-                                <button class="btn btn-primary w-100">Ver Detalles</button>
+                                <a href="index.php?controller=detalle&id=<?php echo $producto['id']; ?>" class="btn btn-primary w-100">Ver Detalles</a>
                             </div>
                         </div>
                     </div>

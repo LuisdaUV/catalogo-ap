@@ -1,32 +1,20 @@
 <?php
-session_start();
-if(isset($_SESSION['user_id'])) {
-    header("Location: catalogo.php");
-    exit();
+// Enrutador básico (Front Controller)
+
+// Por defecto, carga el HomeController si no se especifica otro
+$controllerName = isset($_GET['controller']) ? $_GET['controller'] : 'home';
+
+// Formatea el nombre (ej. 'login' se convierte en 'LoginController')
+$controllerClass = ucfirst($controllerName) . 'Controller';
+$controllerFile = 'controllers/' . $controllerClass . '.php';
+
+// Verifica si el archivo del controlador existe y lo ejecuta
+if (file_exists($controllerFile)) {
+    require_once $controllerFile;
+    $controller = new $controllerClass();
+    $controller->index();
+} else {
+    echo "Error 404: El controlador no existe.";
 }
+
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido - Catálogo de Productos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/style.css">
-</head>
-<body>
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-6 text-center">
-                <h1 class="display-4 mb-4">Catálogo de Productos en Promoción</h1>
-                <p class="lead mb-5">Descubre las mejores ofertas en tecnología y accesorios</p>
-                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                    <a href="login.php" class="btn btn-primary btn-lg px-4">Iniciar Sesión</a>
-                    <a href="registro.php" class="btn btn-outline-primary btn-lg px-4">Registrarse</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
