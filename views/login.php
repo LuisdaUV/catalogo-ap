@@ -8,12 +8,13 @@
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+    <main class="auth-wrap">
     <div class="container">
         <div class="row justify-content-center align-items-center min-vh-100">
             <div class="col-md-5 col-lg-4">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <h2 class="text-center mb-4">Iniciar Sesión</h2>
+                <div class="card auth-card">
+                    <div class="card-body">
+                        <div class="text-center"><span class="auth-logo">✦</span><h2>Qué bueno verte de nuevo</h2><p class="auth-subtitle mb-4">Ingresa a tu cuenta para descubrir las mejores ofertas.</p></div>
                         
                         <?php if(!empty($mensaje)): ?>
                             <div class="alert alert-<?php echo $tipo_mensaje ?? 'info'; ?>" role="alert">
@@ -44,7 +45,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>si

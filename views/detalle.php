@@ -16,7 +16,7 @@ if (!is_array($producto)) {
 </head>
 <body>
     <!-- Navbar (Misma del catálogo) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="index.php?controller=catalogo">Catálogo de Productos</a>
             <div class="collapse navbar-collapse">
@@ -29,10 +29,10 @@ if (!is_array($producto)) {
         </div>
     </nav>
 
-    <div class="container mt-5">
+    <main class="page-shell">
         <div class="row">
             <div class="col-md-8 mx-auto">
-                <div class="card shadow">
+                <div class="card detail-panel">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <h3 class="mb-0"><?php echo htmlspecialchars($producto['nombre']); ?></h3>
                         <div class="badge bg-danger fs-6">
@@ -44,9 +44,7 @@ if (!is_array($producto)) {
                     </div>
                     <div class="card-body p-4">
                         <!-- Si tienes imágenes en la base de datos, puedes agregarlas aquí -->
-                        <div class="bg-light text-center p-5 mb-4 rounded border">
-                            <span class="text-muted">Espacio para Imagen del Producto</span>
-                        </div>
+                        <div class="product-placeholder mb-4"><span>✦ Imagen del producto</span></div>
 
                         <h5 class="text-primary">Descripción:</h5>
                         <p class="lead text-muted"><?php echo htmlspecialchars($producto['descripcion']); ?></p>
@@ -72,8 +70,7 @@ if (!is_array($producto)) {
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

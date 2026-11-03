@@ -8,12 +8,13 @@
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+    <main class="auth-wrap">
     <div class="container">
         <div class="row justify-content-center align-items-center min-vh-100">
             <div class="col-md-6 col-lg-5">
-                <div class="card shadow">
-                    <div class="card-body p-5">
-                        <h2 class="text-center mb-4">Registro de Usuario</h2>
+                <div class="card auth-card">
+                    <div class="card-body">
+                        <div class="text-center"><span class="auth-logo">✦</span><h2>Crea tu cuenta</h2><p class="auth-subtitle mb-4">Regístrate y empieza a explorar el catálogo.</p></div>
                         
                         <?php if(!empty($mensaje)): ?>
                             <div class="alert alert-<?php echo htmlspecialchars($tipo_mensaje ?? 'info'); ?>" role="alert">
@@ -130,7 +131,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {

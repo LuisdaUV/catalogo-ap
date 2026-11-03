@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <!-- Ruta actualizada -->
             <a class="navbar-brand" href="index.php?controller=catalogo">Catálogo de Productos</a>
@@ -29,8 +29,13 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h1 class="mb-4">Productos en Promoción</h1>
+    <main class="page-shell">
+        <section class="hero">
+            <div class="eyebrow">CATÁLOGO · OFERTAS ESPECIALES</div>
+            <h1>Encuentra eso que te encanta, al mejor precio.</h1>
+            <p>Explora productos seleccionados y aprovecha promociones por tiempo limitado.</p>
+        </section>
+        <div class="section-heading"><div><h2>Productos en promoción</h2><p>Ofertas destacadas para ti</p></div><span class="badge bg-light text-dark"><?php echo count($productos); ?> productos</span></div>
         
         <?php if(empty($productos)): ?>
             <div class="alert alert-info">
@@ -40,7 +45,7 @@
             <div class="row">
                 <?php foreach($productos as $producto): ?>
                     <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm">
+                        <div class="card h-100">
                             <div class="card-body">
                                 <div class="badge bg-danger mb-2">
                                     <?php 
@@ -54,7 +59,7 @@
                                     <span class="text-decoration-line-through text-muted">
                                         $<?php echo number_format($producto['precio_original'], 2); ?>
                                     </span>
-                                    <span class="h4 text-success ms-2">
+                                    <span class="price-now ms-2">
                                         $<?php echo number_format($producto['precio_promocion'], 2); ?>
                                     </span>
                                 </div>
@@ -70,7 +75,7 @@
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
