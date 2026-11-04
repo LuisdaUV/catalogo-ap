@@ -1,0 +1,29 @@
+name: CI Catalogo MVC
+
+# Define cuándo se ejecutará esta acción
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Descarga el código del repositorio en el servidor virtual de GitHub
+    - name: Checkout del repositorio
+      uses: actions/checkout@v4
+
+    # 2. Configura PHP en el entorno de ejecución
+    - name: Configurar PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2' # Ajusta la versión según la que uses localmente
+
+    # 3. Validar sintaxis de los archivos PHP en el proyecto MVC
+    - name: Verificar sintaxis de PHP
+      run: |
+        find app/ -name "*.php" -exec php -l {} \;
+        php -l index.php
