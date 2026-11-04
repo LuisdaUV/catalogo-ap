@@ -3,9 +3,9 @@ name: CI Catalogo MVC
 # Define cuándo se ejecutará esta acción
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "feature/rediseño-visual" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main", "feature/rediseño-visual" ]
 
 jobs:
   build:
