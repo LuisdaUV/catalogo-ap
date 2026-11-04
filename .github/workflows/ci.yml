@@ -23,8 +23,3 @@ jobs:
       - name: Verificar sintaxis de PHP
         run: |
           find . -type f -name "*.php" -not -path "./.git/*" -print0 | xargs -0 -n1 php -l
-
-    # 3. Validar sintaxis de los archivos PHP en el proyecto MVC
-    - name: Verificar sintaxis de PHP
-  run: |
-    find . -name "*.php" -not -path "./.git/*" -exec php -l {} \;
